@@ -11,12 +11,8 @@ A remote surf camera at Whale Tail, CA, running on a Raspberry Pi with a cellula
   - Summer (May–Sep): 6:30 AM – 5:30 PM
 - **`update_cron.py`** — reads the current window from `surf_schedule.py` and regenerates the full crontab (capture cadence, boot handler, modem on/off times, watchdog, and its own monthly re-run on the 1st).
 - **`modem_on.sh`** / **`modem_off.sh`** — send AT commands (`AT+CFUN=1` / `AT+CPOF`) over serial (`/dev/ttyUSB2`) to power the cellular modem up at the start of the window and down 1 minute after it ends, since the modem is the biggest power draw on site and doesn't need to be up outside daylight capture hours.
-
-### Not yet in this repo
-
-Two pieces referenced by the crontab weren't recovered from the source Pi and aren't included here yet:
-- **`startup.sh`** — run via `@reboot`; brings the modem and camera up cleanly after a power cycle.
-- **`modem_watchdog.sh`** — runs every 10 minutes to detect and recover a hung modem.
+- **`startup.sh`** — run via `@reboot`; waits for connectivity, syncs system time over NTP, pushes that time to the RTC, regenerates the crontab for the current day, and reprograms the RTC's next wake/sleep times (via `set_wittypi.sh`, a thin wrapper around the WittyPi HAT's vendor scripts — not included here since it's third-party).
+- **`modem_watchdog.sh`** — runs every 10 minutes; pings out, and if that fails, resets the modem over serial and logs the outcome.
 
 ## Deployment notes
 
